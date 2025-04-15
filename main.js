@@ -76,24 +76,42 @@ const GameController = (function () {
   };
 
   function playRound() {
-    const row = prompt(`${activePlayer.playerName} choose your row`) - 1;
-    const col = prompt(`${activePlayer.playerName} choose your column`) - 1;
-    //checks if the user choose the cell that was already taken => exits the func execution if it is taken =>
-    if (gameboard.getBoard()[row][col].getValue()) {
+    const getUserValues = (function () {
+      let row = 0;
+      let col = 0;
+      //check user input for correct value
+      row = prompt(`${activePlayer.playerName}, choose your row`);
+      while (row < 1 || row > 3) {
+        row = prompt(`${activePlayer.playerName} row must be from 1 to 3`);
+      }
+      col = prompt(`${activePlayer.playerName}, choose your column`);
+      while (col < 1 || col > 3) {
+        col = prompt(`${activePlayer.playerName} col must be from 1 to 3`);
+      }
+      return { row: row - 1, col: col - 1 };
+    })();
+
+    //checks if the user choose the cell that was already taken => exits the func execution without any changes if it is taken
+    if (gameboard.getBoard()[getUserValues.row][getUserValues.col].getValue()) {
       alert("the cell is already taken, choose another one");
       return;
     } else {
-      gameboard.changeMark(row, col, activePlayer.playerMark);
+      gameboard.changeMark(
+        getUserValues.row,
+        getUserValues.col,
+        activePlayer.playerMark
+      );
       changeActivePLayer();
     }
     gameboard.printBoard();
   }
 
   const checkWinCondition = () => {
-    //we are checking the player whose turn just ended (because the change of active player happens before winning condition check) if he won he is declared as a winner
+    // checking the player whose turn just ended (because the change of active player happens before winning condition check) if he won he is declared as a winner
     let previosPlayer = activePlayer === players[0] ? players[1] : players[0];
 
     let board = gameboard.getBoard();
+    let win = false;
     diag1 = [
       board[0][0].getValue(),
       board[1][1].getValue(),
@@ -104,7 +122,6 @@ const GameController = (function () {
       board[1][1].getValue(),
       board[2][0].getValue(),
     ];
-    let win = false;
     const winPattern = JSON.stringify([
       previosPlayer.playerMark,
       previosPlayer.playerMark,
