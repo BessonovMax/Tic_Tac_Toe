@@ -31,10 +31,10 @@ const gameboard = (function Gameboard() {
   };
 
   const changeMark = (row, col, playerMark) => {
-    if (gameboard[row - 1][col - 1].getValue()) {
+    if (gameboard[row][col].getValue()) {
       alert("the cell is already taken, choose another one");
       return;
-    } else gameboard[row - 1][col - 1].changeValue(playerMark);
+    } else gameboard[row][col].changeValue(playerMark);
   };
 
   const printBoard = () => {
@@ -76,15 +76,23 @@ const GameController = (function () {
   };
 
   function playRound() {
-    gameboard.changeMark(
-      prompt(`${activePlayer.playerName} choose your row`),
-      prompt(`${activePlayer.playerName} choose your column`),
-      activePlayer.playerMark
-    );
+    const row = prompt(`${activePlayer.playerName} choose your row`) - 1;
+    const col = prompt(`${activePlayer.playerName} choose your column`) - 1;
+    //checks if the user choose the cell that was already taken => exits the func execution if it is taken =>
+    if (gameboard.getBoard()[row][col].getValue()) {
+      alert("the cell is already taken, choose another one");
+      return;
+    } else {
+      gameboard.changeMark(row, col, activePlayer.playerMark);
+      changeActivePLayer();
+    }
     gameboard.printBoard();
   }
-  //only checks 3-in-a-row for now
+
   const checkWinCondition = () => {
+    //we are checking the player whose turn just ended (because the change of active player happens before winning condition check) if he won he is declared as a winner
+    let previosPlayer = activePlayer === players[0] ? players[1] : players[0];
+
     let board = gameboard.getBoard();
     diag1 = [
       board[0][0].getValue(),
@@ -98,19 +106,19 @@ const GameController = (function () {
     ];
     let win = false;
     const winPattern = JSON.stringify([
-      activePlayer.playerMark,
-      activePlayer.playerMark,
-      activePlayer.playerMark,
+      previosPlayer.playerMark,
+      previosPlayer.playerMark,
+      previosPlayer.playerMark,
     ]);
     function declareWinner() {
       win = true;
-      console.log(`${activePlayer.playerName} wins!`);
+      console.log(`${previosPlayer.playerName} wins!`);
     }
     //this is an implicit return function (if there would be curly braces we would have to RETURN the result of the function)
     const allEqual = (arr, mark) => arr.every((val) => val === mark);
     //checking if the row consists of only active player's marks
     for (let row = 0; row < 3; row++) {
-      if (allEqual(gameboard.getRow(row), activePlayer.playerMark)) {
+      if (allEqual(gameboard.getRow(row), previosPlayer.playerMark)) {
         declareWinner();
       }
     }
@@ -135,7 +143,6 @@ const GameController = (function () {
     while (!result) {
       playRound();
       result = checkWinCondition();
-      changeActivePLayer();
     }
   };
   playGame();
