@@ -1,3 +1,4 @@
+import { GridValues } from "./gridValues.js";
 const gameboard = (function Gameboard() {
   const gameboard = [];
   const rows = 3;
@@ -30,21 +31,50 @@ const gameboard = (function Gameboard() {
     return boardCol;
   };
 
-  const changeMark = (row, col, playerMark) =>
+  const changeMark = (row, col, playerMark, target) =>
     gameboard[row][col].changeValue(playerMark);
 
-  const printBoard = () => {
-    const boardWithCells = gameboard.map((row) =>
-      row.map((cell) => cell.getValue())
+  const getBoardArray = () => {
+    const boardWithCells = [];
+    gameboard.forEach((row) =>
+      row.forEach((cell) => boardWithCells.push(cell.getValue()))
     );
-    boardWithCells.forEach((row) => console.log(row.join(" | ")));
+    return boardWithCells;
   };
 
-  return { printBoard, changeMark, getBoard, getRow, getCol };
+  return { getBoardArray, changeMark, getBoard, getRow, getCol };
 })();
 
+document.addEventListener("DOMContentLoaded", () => {
+  const displayBoard = () => {
+    const grid = document.createElement("div");
+    grid.className = "game";
+    const gameContainer = document.querySelector(".game-container");
+    const boardArr = gameboard.getBoardArray();
+    function fillGrid() {
+      for (let i = 0; i < boardArr.length; i++) {
+        const cellEl = document.createElement("div");
+        cellEl.className = "cell";
+        cellEl.textContent = `${boardArr[i]}`;
+        cellEl.value = i;
+        cellEl.addEventListener("click", (e) => {
+          console.log(e.target.value);
+          GameController.playRound(e.target);
+          GameController.changeActivePlayer();
+        });
+        grid.appendChild(cellEl);
+      }
+    }
+
+    fillGrid();
+    gameContainer.appendChild(grid);
+  };
+
+  displayBoard();
+});
+
 function Cell() {
-  let value = 0;
+  let value = "";
 
   const changeValue = (playerMark) => (value = playerMark);
 
@@ -53,7 +83,7 @@ function Cell() {
   return { getValue, changeValue };
 }
 
-/* const GameController = (function () {
+const GameController = (function () {
   function Player(playerName, playerMark) {
     return { playerName, playerMark };
   }
@@ -71,22 +101,13 @@ function Cell() {
       : (activePlayer = players[0]);
   };
 
-  function playRound() {
+  function playRound(targetDiv) {
     function getUserValues() {
-      //check user input for correct value
-      let row = prompt(`${activePlayer.playerName}, choose your row`);
+      //check user input for correct valu
 
-      while (row < 1 || row > 3) {
-        row = prompt(`${activePlayer.playerName}, row must be from 1 to 3`);
-        if (row == null) return;
-      }
-      let col = prompt(`${activePlayer.playerName}, choose your column`);
+      let { row, col } = GridValues[targetDiv.value];
 
-      while (col < 1 || col > 3) {
-        col = prompt(`${activePlayer.playerName}, col must be from 1 to 3`);
-        if (col == null) return;
-      }
-      return { row: row - 1, col: col - 1 };
+      return { row, col };
     }
 
     let { row, col } = getUserValues();
@@ -97,15 +118,12 @@ function Cell() {
       return;
     } else {
       gameboard.changeMark(row, col, activePlayer.playerMark);
-      changeActivePlayer();
+      targetDiv.textContent = activePlayer.playerMark;
     }
-    gameboard.printBoard();
+    checkWinCondition();
   }
 
   const checkWinCondition = () => {
-    // checking the player whose turn just ended (because the change of active player happens before winning condition check) if he won he is declared as a winner
-    let previousPlayer = activePlayer === players[0] ? players[1] : players[0];
-
     let board = gameboard.getBoard();
     let win = false;
     const diag1 = [
@@ -119,25 +137,25 @@ function Cell() {
       board[2][0].getValue(),
     ];
     const winPattern = JSON.stringify([
-      previousPlayer.playerMark,
-      previousPlayer.playerMark,
-      previousPlayer.playerMark,
+      activePlayer.playerMark,
+      activePlayer.playerMark,
+      activePlayer.playerMark,
     ]);
     function declareWinner() {
       win = true;
-      console.log(`${previousPlayer.playerName} wins!`);
+      console.log(`${activePlayer.playerName} wins!`);
     }
     //this is an implicit return function (if there would be curly braces we would have to RETURN the result of the function)
     const allEqual = (arr, mark) => arr.every((val) => val === mark);
     //checking if the row consists of only active player's marks
     for (let row = 0; row < 3; row++) {
-      if (allEqual(gameboard.getRow(row), previousPlayer.playerMark)) {
+      if (allEqual(gameboard.getRow(row), activePlayer.playerMark)) {
         declareWinner();
       }
     }
     //checking if the col consists of only active player's marks
     for (let col = 0; col < 3; col++) {
-      if (allEqual(gameboard.getCol(col), previousPlayer.playerMark)) {
+      if (allEqual(gameboard.getCol(col), activePlayer.playerMark)) {
         declareWinner();
       }
     }
@@ -158,16 +176,17 @@ function Cell() {
         console.log("It's a tie! Try one more time!");
       }
     }
-
-    return win;
+    return;
   };
 
-  const playGame = () => {
+  return { playRound, changeActivePlayer };
+
+  /*   const playGame = () => {
     let result = false;
     while (!result) {
       playRound();
       result = checkWinCondition();
     }
   };
-  playGame();
-})(); */
+  playGame(); */
+})();
