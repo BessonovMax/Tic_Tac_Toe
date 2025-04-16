@@ -1,4 +1,3 @@
-import { GridValues } from "./gridValues.js";
 const gameboard = (function Gameboard() {
   const gameboard = [];
   const rows = 3;
@@ -60,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
         cellEl.addEventListener("click", (e) => {
           console.log(e.target.value);
           GameController.playRound(e.target);
-          GameController.changeActivePlayer();
         });
         grid.appendChild(cellEl);
       }
@@ -102,10 +100,19 @@ const GameController = (function () {
   };
 
   function playRound(targetDiv) {
+    //creates grid values object with row and col properties
+    //this object is used to get the row and col of the cell that was clicked by the user
+    const gridValues = {};
+    for (let i = 0; i < 9; i++) {
+      gridValues[i] = {};
+      gridValues[i].row = Math.floor(i / 3);
+      gridValues[i].col = i % 3;
+    }
+
     function getUserValues() {
       //check user input for correct valu
 
-      let { row, col } = GridValues[targetDiv.value];
+      let { row, col } = gridValues[targetDiv.value];
 
       return { row, col };
     }
@@ -119,8 +126,9 @@ const GameController = (function () {
     } else {
       gameboard.changeMark(row, col, activePlayer.playerMark);
       targetDiv.textContent = activePlayer.playerMark;
+      checkWinCondition();
+      changeActivePlayer();
     }
-    checkWinCondition();
   }
 
   const checkWinCondition = () => {
