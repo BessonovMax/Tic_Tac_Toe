@@ -3,3 +3,56 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+body {
+  min-height: 100dvh;
+  background-color: rgb(162, 195, 222);
+  background-image: url("./assets/104668.jpg");
+  display: flex;
+  justify-content: center;
+}
+.container {
+  background-color: rgb(233, 231, 231);
+  background-image: url("./assets/133751010_10262400.jpg");
+  background-position: center;
+  width: 70%;
+  border: 1px solid gray;
+}
+
+main {
+  width: 90%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.game {
+  width: 100%;
+  max-width: 800px;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  /* background-color: black; */
+  gap: 2px;
+}
+
+.cell {
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  aspect-ratio: 1;
+  width: 100%;
+  color: #1e3a8a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16rem;
+  background-color: rgba(233, 231, 231, 0.689);
+  font-family: Caveat, "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+    sans-serif;
+  &:hover {
+    /*     background-color: rgba(233, 231, 231, 0.911); */
+    cursor: pointer;
+  }
+}

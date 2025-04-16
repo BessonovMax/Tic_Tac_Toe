@@ -53,7 +53,7 @@ function Cell() {
   return { getValue, changeValue };
 }
 
-const GameController = (function () {
+/* const GameController = (function () {
   function Player(playerName, playerMark) {
     return { playerName, playerMark };
   }
@@ -170,4 +170,4 @@ const GameController = (function () {
     }
   };
   playGame();
-})();
+})(); */
