@@ -56,21 +56,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const gameContainer = document.querySelector(".game-container");
     const boardArr = gameboard.getBoardArray();
 
-    function fillGrid() {
-      for (let i = 0; i < boardArr.length; i++) {
-        const cellEl = document.createElement("div");
-        cellEl.className = "cell";
-        cellEl.textContent = `${boardArr[i]}`;
-        cellEl.value = i;
-        cellEl.addEventListener("click", (e) => {
-          console.log(e.target.value);
-          GameController.playRound(e.target);
-        });
-        grid.appendChild(cellEl);
-      }
+    for (let i = 0; i < boardArr.length; i++) {
+      const cellEl = document.createElement("div");
+      cellEl.className = "cell";
+      cellEl.textContent = `${boardArr[i]}`;
+      cellEl.value = i;
+      cellEl.addEventListener("click", (e) => {
+        GameController.playRound(e.target);
+      });
+      grid.appendChild(cellEl);
     }
 
-    fillGrid();
     gameContainer.appendChild(grid);
   };
 
@@ -88,23 +84,44 @@ function Cell() {
 }
 
 const GameController = (function () {
-  /* function Player(playerName, playerMark) {
-    return { playerName, playerMark };
+  const displayWindow = document.querySelector(".display");
+
+  function displayMessage(message) {
+    const messageDiv = document.createElement("div");
+    messageDiv.textContent = message;
+    messageDiv.style.marginBottom = ".05rem";
+    displayWindow.appendChild(messageDiv);
   }
 
-  let players = [
-    Player(prompt("Player One"), "X"),
-    Player(prompt("Player Two"), "O"),
-  ];
+  displayMessage("Welcome to Tic Tac Toe!");
+  displayMessage("To start the game, please enter your names.");
 
-  let activePlayer = players[0];
+  function Player(playerName, playerMark) {
+    return { playerName, playerMark };
+  }
+  let players = [];
+  let activePlayer;
 
-  const changeActivePlayer = () => {
-    activePlayer === players[0]
-      ? (activePlayer = players[1])
-      : (activePlayer = players[0]);
-  };
- */
+  let playerOneInput = document.querySelector("#player-one");
+  let playerTwoInput = document.querySelector("#player-two");
+  playerOneInput.addEventListener("change", (e) => {
+    playerOneInput.value = e.target.value;
+    players[0] = Player(playerOneInput.value, "X");
+    activePlayer = players[0];
+    if (players[1]) {
+      displayWindow.innerHTML = "";
+      displayMessage("Let's play!");
+    }
+  });
+  playerTwoInput.addEventListener("change", (e) => {
+    playerTwoInput.value = e.target.value;
+    players[1] = Player(playerTwoInput.value, "O");
+    if (players[0]) {
+      displayWindow.innerHTML = "";
+      displayMessage("Let's play!");
+    }
+  });
+
   //creates grid values object with row and col properties
   //this object is used to get the row and col of the cell that was clicked by the user
   const gridValues = {};
@@ -114,6 +131,11 @@ const GameController = (function () {
     gridValues[i].col = i % 3;
   }
 
+  const changeActivePlayer = () => {
+    activePlayer === players[0]
+      ? (activePlayer = players[1])
+      : (activePlayer = players[0]);
+  };
   function playRound(targetDiv) {
     let { row, col } = gridValues[targetDiv.value];
 
@@ -151,7 +173,7 @@ const GameController = (function () {
     ]);
     function declareWinner() {
       win = true;
-      console.log(`${activePlayer.playerName} wins!`);
+      displayMessage(`${activePlayer.playerName} wins!`);
     }
     //this is an implicit return function (if there would be curly braces we would have to RETURN the result of the function)
     const allEqual = (arr, mark) => arr.every((val) => val === mark);
@@ -181,11 +203,11 @@ const GameController = (function () {
       );
       if (isTie) {
         win = true;
-        console.log("It's a tie! Try one more time!");
+        displayMessage("It's a tie!");
       }
     }
     return;
   };
 
-  return { playRound, changeActivePlayer };
+  return { playRound };
 })();
