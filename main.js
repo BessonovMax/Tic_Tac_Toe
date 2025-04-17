@@ -30,9 +30,13 @@ const gameboard = (function Gameboard() {
     return boardCol;
   };
 
+  //this function changes the cell value to the active player's mark
+  //it is used in the GameController module to change the cell value
   const changeMark = (row, col, playerMark, target) =>
     gameboard[row][col].changeValue(playerMark);
 
+  //this function returns the gameboard array with all cell values
+  //it is used to create the grid in the DOM
   const getBoardArray = () => {
     const boardWithCells = [];
     gameboard.forEach((row) =>
@@ -44,12 +48,14 @@ const gameboard = (function Gameboard() {
   return { getBoardArray, changeMark, getBoard, getRow, getCol };
 })();
 
+//this function is called when the DOM is loaded and it creates the gameboard grid
 document.addEventListener("DOMContentLoaded", () => {
   const displayBoard = () => {
     const grid = document.createElement("div");
     grid.className = "game";
     const gameContainer = document.querySelector(".game-container");
     const boardArr = gameboard.getBoardArray();
+
     function fillGrid() {
       for (let i = 0; i < boardArr.length; i++) {
         const cellEl = document.createElement("div");
@@ -82,7 +88,7 @@ function Cell() {
 }
 
 const GameController = (function () {
-  function Player(playerName, playerMark) {
+  /* function Player(playerName, playerMark) {
     return { playerName, playerMark };
   }
 
@@ -98,7 +104,7 @@ const GameController = (function () {
       ? (activePlayer = players[1])
       : (activePlayer = players[0]);
   };
-
+ */
   //creates grid values object with row and col properties
   //this object is used to get the row and col of the cell that was clicked by the user
   const gridValues = {};
