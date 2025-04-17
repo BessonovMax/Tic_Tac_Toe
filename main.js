@@ -99,27 +99,21 @@ const GameController = (function () {
       : (activePlayer = players[0]);
   };
 
+  //creates grid values object with row and col properties
+  //this object is used to get the row and col of the cell that was clicked by the user
+  const gridValues = {};
+  for (let i = 0; i < 9; i++) {
+    gridValues[i] = {};
+    gridValues[i].row = Math.floor(i / 3);
+    gridValues[i].col = i % 3;
+  }
+
   function playRound(targetDiv) {
-    //creates grid values object with row and col properties
-    //this object is used to get the row and col of the cell that was clicked by the user
-    const gridValues = {};
-    for (let i = 0; i < 9; i++) {
-      gridValues[i] = {};
-      gridValues[i].row = Math.floor(i / 3);
-      gridValues[i].col = i % 3;
-    }
-
-    function getUserValues() {
-      //check user input for correct valu
-
-      let { row, col } = gridValues[targetDiv.value];
-
-      return { row, col };
-    }
-
-    let { row, col } = getUserValues();
+    let { row, col } = gridValues[targetDiv.value];
 
     //checks if the user choose the cell that was already taken => exits the func execution without any changes if it is taken
+    //otherwise it changes the cell value to the active player's mark and checks if the game is won
+    //if the game is not won it changes the active player
     if (gameboard.getBoard()[row][col].getValue()) {
       alert("the cell is already taken, choose another one");
       return;
@@ -188,13 +182,4 @@ const GameController = (function () {
   };
 
   return { playRound, changeActivePlayer };
-
-  /*   const playGame = () => {
-    let result = false;
-    while (!result) {
-      playRound();
-      result = checkWinCondition();
-    }
-  };
-  playGame(); */
 })();
