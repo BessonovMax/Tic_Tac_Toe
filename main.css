@@ -50,9 +50,6 @@ header {
 .player {
   display: flex;
   gap: 1rem;
-  label {
-    min-width: 190px;
-  }
 }
 .input-wrapper {
   position: relative;
@@ -170,16 +167,14 @@ header {
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 950px) {
   .me {
     font-size: 1.2rem;
   }
   .players-container {
     font-size: large;
   }
-  .player label {
-    min-width: 150px;
-  }
+
   .game {
     min-width: 400px;
   }
