@@ -12,6 +12,12 @@ const gameboard = (function Gameboard() {
     }
   }
 
+  const resetGameboard = () => {
+    gameboard.forEach((row) => {
+      row.forEach((cell) => cell.resetValues());
+    });
+  };
+
   const getBoard = () => gameboard;
 
   const getRow = (row) => {
@@ -45,31 +51,37 @@ const gameboard = (function Gameboard() {
     return boardWithCells;
   };
 
-  return { getBoardArray, changeMark, getBoard, getRow, getCol };
+  return {
+    getBoardArray,
+    changeMark,
+    getBoard,
+    getRow,
+    getCol,
+    resetGameboard,
+  };
 })();
 
 //this function is called when the DOM is loaded and it creates the gameboard grid
+const displayBoard = () => {
+  const grid = document.createElement("div");
+  grid.className = "game";
+  const gameContainer = document.querySelector(".game-container");
+  const boardArr = gameboard.getBoardArray();
+
+  for (let i = 0; i < boardArr.length; i++) {
+    const cellEl = document.createElement("div");
+    cellEl.className = "cell";
+    cellEl.textContent = `${boardArr[i]}`;
+    cellEl.value = i;
+    cellEl.addEventListener("click", (e) => {
+      GameController.playRound(e.target);
+    });
+    grid.appendChild(cellEl);
+  }
+
+  gameContainer.appendChild(grid);
+};
 document.addEventListener("DOMContentLoaded", () => {
-  const displayBoard = () => {
-    const grid = document.createElement("div");
-    grid.className = "game";
-    const gameContainer = document.querySelector(".game-container");
-    const boardArr = gameboard.getBoardArray();
-
-    for (let i = 0; i < boardArr.length; i++) {
-      const cellEl = document.createElement("div");
-      cellEl.className = "cell";
-      cellEl.textContent = `${boardArr[i]}`;
-      cellEl.value = i;
-      cellEl.addEventListener("click", (e) => {
-        GameController.playRound(e.target);
-      });
-      grid.appendChild(cellEl);
-    }
-
-    gameContainer.appendChild(grid);
-  };
-
   displayBoard();
 });
 
@@ -80,20 +92,33 @@ function Cell() {
     value = playerMark;
     callCount++;
   };
+  const resetValues = () => {
+    value = "";
+    callCount = 0;
+  };
   const incrementCallCount = () => callCount++;
   const getCallCount = () => callCount;
   const getValue = () => value;
 
-  return { getValue, changeValue, incrementCallCount, getCallCount };
+  return {
+    getValue,
+    changeValue,
+    incrementCallCount,
+    getCallCount,
+    resetValues,
+  };
 }
 
 const GameController = (function () {
   let win = false;
-  const displayWindow = document.querySelector(".display");
 
+  const displayWindow = document.querySelector(".display");
   const restartButton = document.createElement("button");
   restartButton.textContent = "Restart Game?";
   restartButton.id = "restart";
+  restartButton.addEventListener("click", () => {
+    restartGame();
+  });
 
   function displayMessage(message) {
     const messageDiv = document.createElement("div");
@@ -158,6 +183,19 @@ const GameController = (function () {
       displayMessage(`${activePlayer.playerName}'s turn!`);
     }
   };
+
+  const restartGame = () => {
+    win = false;
+    gameboard.resetGameboard();
+    const gameContainer = document.querySelector(".game-container");
+    gameContainer.innerHTML = "";
+    displayBoard();
+    activePlayer = players[0];
+    displayWindow.innerHTML = "";
+    displayMessage("Let's play!");
+    displayMessage(`${activePlayer.playerName}'s turn!`);
+  };
+
   function playRound(targetDiv) {
     let { row, col } = gridValues[targetDiv.value];
     //checks if the game is won => exits the func execution without any changes if it is won
@@ -233,6 +271,7 @@ const GameController = (function () {
         win = true;
         displayWindow.innerHTML = "";
         displayMessage("It's a tie!");
+        displayWindow.appendChild(restartButton);
       }
     }
     console.log(win);
