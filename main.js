@@ -128,7 +128,7 @@ const GameController = (function () {
   }
 
   displayMessage("Welcome!");
-  displayMessage("To start the game, please enter your names.");
+  displayMessage("To START the game, please enter your NAMES.");
 
   function Player(playerName, playerMark) {
     return { playerName, playerMark };
