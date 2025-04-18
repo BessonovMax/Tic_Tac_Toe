@@ -219,47 +219,58 @@ const GameController = (function () {
 
   const checkWinCondition = () => {
     let previousPlayer = activePlayer === players[0] ? players[1] : players[0];
-    let board = gameboard.getBoard();
-    const diag1 = [
-      board[0][0].getValue(),
-      board[1][1].getValue(),
-      board[2][2].getValue(),
-    ];
-    const diag2 = [
-      board[0][2].getValue(),
-      board[1][1].getValue(),
-      board[2][0].getValue(),
-    ];
-    const winPattern = JSON.stringify([
-      previousPlayer.playerMark,
-      previousPlayer.playerMark,
-      previousPlayer.playerMark,
-    ]);
+
     function declareWinner() {
       win = true;
       displayWindow.innerHTML = "";
       displayMessage(`Congratulations! ${previousPlayer.playerName} wins!`);
       displayWindow.appendChild(restartButton);
     }
+
     //this is an implicit return function (if there would be curly braces we would have to RETURN the result of the function)
     const allEqual = (arr, mark) => arr.every((val) => val === mark);
     //checking if the row consists of only active player's marks
-    for (let row = 0; row < 3; row++) {
-      if (allEqual(gameboard.getRow(row), previousPlayer.playerMark)) {
-        declareWinner();
+    function checkRow(mark) {
+      for (let row = 0; row < 3; row++) {
+        if (allEqual(gameboard.getRow(row), mark)) {
+          return true;
+        }
       }
+      return false;
     }
+
     //checking if the col consists of only active player's marks
-    for (let col = 0; col < 3; col++) {
-      if (allEqual(gameboard.getCol(col), previousPlayer.playerMark)) {
-        declareWinner();
+    function checkCol(mark) {
+      for (let col = 0; col < 3; col++) {
+        if (allEqual(gameboard.getCol(col), mark)) {
+          return true;
+        }
       }
+      return false;
     }
+
     //checking diagonal lines win condition
-    for (let diag = 0; diag < 2; diag++) {
-      if (allEqual(diag === 0 ? diag1 : diag2, previousPlayer.playerMark)) {
-        declareWinner();
-      }
+    let board = gameboard.getBoard();
+    function checkDiagonal(mark) {
+      const diag1 = [
+        board[0][0].getValue(),
+        board[1][1].getValue(),
+        board[2][2].getValue(),
+      ];
+      const diag2 = [
+        board[0][2].getValue(),
+        board[1][1].getValue(),
+        board[2][0].getValue(),
+      ];
+      return allEqual(diag1, mark) || allEqual(diag2, mark);
+    }
+
+    if (
+      checkRow(previousPlayer.playerMark) ||
+      checkCol(previousPlayer.playerMark) ||
+      checkDiagonal(previousPlayer.playerMark)
+    ) {
+      declareWinner();
     }
 
     if (!win) {
