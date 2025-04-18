@@ -75,16 +75,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function Cell() {
   let value = "";
-
-  const changeValue = (playerMark) => (value = playerMark);
-
+  let callCount = 0;
+  const changeValue = (playerMark) => {
+    value = playerMark;
+    callCount++;
+  };
+  const incrementCallCount = () => callCount++;
+  const getCallCount = () => callCount;
   const getValue = () => value;
 
-  return { getValue, changeValue };
+  return { getValue, changeValue, incrementCallCount, getCallCount };
 }
 
 const GameController = (function () {
   const displayWindow = document.querySelector(".display");
+
+  const restartButton = document.createElement("button");
+  restartButton.textContent = "Restart Game?";
+  restartButton.id = "restart";
 
   function displayMessage(message) {
     const messageDiv = document.createElement("div");
@@ -102,25 +110,34 @@ const GameController = (function () {
   let players = [];
   let activePlayer;
 
+  function prepareForGame(nameInput, playerIndex1, mark) {
+    const wrapper = nameInput.parentElement;
+
+    nameInput.addEventListener("change", (e) => {
+      console.log(e.target.value);
+      nameInput.value = e.target.value;
+      console.log(nameInput.value);
+      players[playerIndex1] = Player(nameInput.value, mark);
+      console.log(players[playerIndex1]);
+      activePlayer = players[0];
+      console.log(activePlayer);
+      if (players[0] && players[1]) {
+        displayWindow.innerHTML = "";
+        displayMessage("Let's play!");
+        displayMessage(`${activePlayer.playerName}'s turn!`);
+      }
+      if (nameInput.value.trim() !== "") {
+        wrapper.classList.add("valid");
+      } else {
+        wrapper.classList.remove("valid");
+      }
+    });
+  }
+
   let playerOneInput = document.querySelector("#player-one");
   let playerTwoInput = document.querySelector("#player-two");
-  playerOneInput.addEventListener("change", (e) => {
-    playerOneInput.value = e.target.value;
-    players[0] = Player(playerOneInput.value, "X");
-    activePlayer = players[0];
-    if (players[1]) {
-      displayWindow.innerHTML = "";
-      displayMessage("Let's play!");
-    }
-  });
-  playerTwoInput.addEventListener("change", (e) => {
-    playerTwoInput.value = e.target.value;
-    players[1] = Player(playerTwoInput.value, "O");
-    if (players[0]) {
-      displayWindow.innerHTML = "";
-      displayMessage("Let's play!");
-    }
-  });
+  prepareForGame(playerOneInput, 0, "X");
+  prepareForGame(playerTwoInput, 1, "O");
 
   //creates grid values object with row and col properties
   //this object is used to get the row and col of the cell that was clicked by the user
@@ -135,6 +152,10 @@ const GameController = (function () {
     activePlayer === players[0]
       ? (activePlayer = players[1])
       : (activePlayer = players[0]);
+    if (!checkWinCondition()) {
+      displayWindow.innerHTML = "";
+      displayMessage(`${activePlayer.playerName}'s turn!`);
+    }
   };
   function playRound(targetDiv) {
     let { row, col } = gridValues[targetDiv.value];
@@ -143,17 +164,21 @@ const GameController = (function () {
     //otherwise it changes the cell value to the active player's mark and checks if the game is won
     //if the game is not won it changes the active player
     if (gameboard.getBoard()[row][col].getValue()) {
-      alert("the cell is already taken, choose another one");
-      return;
+      if (gameboard.getBoard()[row][col].getCallCount() === 1) {
+        displayMessage("the cell is already taken, choose another one");
+        gameboard.getBoard()[row][col].incrementCallCount();
+        return;
+      } else return;
     } else {
       gameboard.changeMark(row, col, activePlayer.playerMark);
       targetDiv.textContent = activePlayer.playerMark;
-      checkWinCondition();
+      /* checkWinCondition(); */
       changeActivePlayer();
     }
   }
 
   const checkWinCondition = () => {
+    let previousPlayer = activePlayer === players[0] ? players[1] : players[0];
     let board = gameboard.getBoard();
     let win = false;
     const diag1 = [
@@ -167,25 +192,27 @@ const GameController = (function () {
       board[2][0].getValue(),
     ];
     const winPattern = JSON.stringify([
-      activePlayer.playerMark,
-      activePlayer.playerMark,
-      activePlayer.playerMark,
+      previousPlayer.playerMark,
+      previousPlayer.playerMark,
+      previousPlayer.playerMark,
     ]);
     function declareWinner() {
       win = true;
-      displayMessage(`${activePlayer.playerName} wins!`);
+      displayWindow.innerHTML = "";
+      displayMessage(`Congratulations! ${previousPlayer.playerName} wins!`);
+      displayWindow.appendChild(restartButton);
     }
     //this is an implicit return function (if there would be curly braces we would have to RETURN the result of the function)
     const allEqual = (arr, mark) => arr.every((val) => val === mark);
     //checking if the row consists of only active player's marks
     for (let row = 0; row < 3; row++) {
-      if (allEqual(gameboard.getRow(row), activePlayer.playerMark)) {
+      if (allEqual(gameboard.getRow(row), previousPlayer.playerMark)) {
         declareWinner();
       }
     }
     //checking if the col consists of only active player's marks
     for (let col = 0; col < 3; col++) {
-      if (allEqual(gameboard.getCol(col), activePlayer.playerMark)) {
+      if (allEqual(gameboard.getCol(col), previousPlayer.playerMark)) {
         declareWinner();
       }
     }
@@ -203,10 +230,12 @@ const GameController = (function () {
       );
       if (isTie) {
         win = true;
+        displayWindow.innerHTML = "";
         displayMessage("It's a tie!");
       }
     }
-    return;
+    console.log(win);
+    return win;
   };
 
   return { playRound };
