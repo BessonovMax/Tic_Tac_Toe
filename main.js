@@ -88,6 +88,7 @@ function Cell() {
 }
 
 const GameController = (function () {
+  let win = false;
   const displayWindow = document.querySelector(".display");
 
   const restartButton = document.createElement("button");
@@ -159,7 +160,8 @@ const GameController = (function () {
   };
   function playRound(targetDiv) {
     let { row, col } = gridValues[targetDiv.value];
-
+    //checks if the game is won => exits the func execution without any changes if it is won
+    if (win) return;
     //checks if the user choose the cell that was already taken => exits the func execution without any changes if it is taken
     //otherwise it changes the cell value to the active player's mark and checks if the game is won
     //if the game is not won it changes the active player
@@ -180,7 +182,6 @@ const GameController = (function () {
   const checkWinCondition = () => {
     let previousPlayer = activePlayer === players[0] ? players[1] : players[0];
     let board = gameboard.getBoard();
-    let win = false;
     const diag1 = [
       board[0][0].getValue(),
       board[1][1].getValue(),
