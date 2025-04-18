@@ -256,11 +256,10 @@ const GameController = (function () {
       }
     }
     //checking diagonal lines win condition
-    if (
-      JSON.stringify(diag1) === winPattern ||
-      JSON.stringify(diag2) === winPattern
-    ) {
-      declareWinner();
+    for (let diag = 0; diag < 2; diag++) {
+      if (allEqual(diag === 0 ? diag1 : diag2, previousPlayer.playerMark)) {
+        declareWinner();
+      }
     }
 
     if (!win) {
