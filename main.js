@@ -127,7 +127,7 @@ const GameController = (function () {
     displayWindow.appendChild(messageDiv);
   }
 
-  displayMessage("Welcome to Tic Tac Toe!");
+  displayMessage("Welcome!");
   displayMessage("To start the game, please enter your names.");
 
   function Player(playerName, playerMark) {
@@ -140,13 +140,12 @@ const GameController = (function () {
     const wrapper = nameInput.parentElement;
 
     nameInput.addEventListener("change", (e) => {
-      console.log(e.target.value);
       nameInput.value = e.target.value;
-      console.log(nameInput.value);
+
       players[playerIndex1] = Player(nameInput.value, mark);
-      console.log(players[playerIndex1]);
+
       activePlayer = players[0];
-      console.log(activePlayer);
+
       if (players[0] && players[1]) {
         displayWindow.innerHTML = "";
         displayMessage("Let's play!");
@@ -284,7 +283,6 @@ const GameController = (function () {
         displayWindow.appendChild(restartButton);
       }
     }
-    console.log(win);
     return win;
   };
 
